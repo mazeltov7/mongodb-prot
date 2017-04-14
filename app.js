@@ -10,6 +10,19 @@ var users = require('./routes/users');
 
 var app = express();
 
+const MongoCient = require('mongodb').MongoClient;
+const assert = require('assert');
+
+const url = 'mongodb://localhost:27017/mongodb-prot';
+
+MongoCient.connect(url, function(err, db) {
+	assert.equal(null, err);
+	console.log('connection successfully to server');
+
+	db.close();
+});
+
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
