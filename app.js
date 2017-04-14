@@ -18,8 +18,10 @@ MongoCient.connect(url, function(err, db) {
 	assert.equal(null, err);
 	console.log('connection successfully to server');
 
-	insertDocuments(db, function() {
-		db.close();
+	removeDocument(db, function() {
+		findAllDocuments(db, function() {
+			db.close();
+		})
 	});
 });
 
@@ -36,8 +38,46 @@ function insertDocuments(db, callback) {
 		});
 }
 
+function findAllDocuments(db, callback) {
+	let collection = db.collection('documents');
+	collection.find({}).toArray(function(err, docs) {
+		assert.equal(err, null);
+		console.log('Found the following records');
+		console.log(docs);
+		callback(docs);
+	});
+}
 
+function findDocument(db, callback) {
+	let collection = db.collection('documents');
+	collection.find({'a': 3}).toArray(function(err, docs) {
+		assert.equal(err, null);
+		console.log('Found record');
+		console.log(docs);
+		callback(docs);
+	});
+}
 
+function updateDocment(db, callback) {
+	const collection = db.collection('documents');
+	collection.updateOne({'a': 2},
+		{ $set: {'b': 1} }, function(err, result) {
+			assert.equal(err, null);
+			assert.equal(1, result.result.n);
+			console.log('Updated the document with the field a equal to 2');
+			callback(result);
+		});
+}
+
+function removeDocument(db, callback) {
+	const collection = db.collection('documents');
+	collection.deleteOne({'a': 3}, function(err, result) {
+		assert.equal(err, null);
+		assert.equal(1, result.result.n);
+		console.log('Removed the document with the field a equal to 3');
+		callback(result);
+	});
+}
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
