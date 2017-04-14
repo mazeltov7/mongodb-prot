@@ -12,15 +12,31 @@ var app = express();
 
 const MongoCient = require('mongodb').MongoClient;
 const assert = require('assert');
-
 const url = 'mongodb://localhost:27017/mongodb-prot';
 
 MongoCient.connect(url, function(err, db) {
 	assert.equal(null, err);
 	console.log('connection successfully to server');
 
-	db.close();
+	insertDocuments(db, function() {
+		db.close();
+	});
 });
+
+function insertDocuments(db, callback) {
+	let collection = db.collection('documents');
+	collection.insertMany([
+		{a : 1}, {a : 2}, {a : 3}
+		], function(err, result) {
+			assert.equal(err, null);
+			assert.equal(3, result.result.n);
+			assert.equal(3, result.ops.length);
+			console.log('inserted 3 documents into the collection');
+			callback(result);
+		});
+}
+
+
 
 
 // view engine setup
